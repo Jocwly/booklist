@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:booklistt/modelo/libro.dart';
+import 'package:booklistt/pantallas/detalle_libro.dart';
 
 class LibrosGenero extends StatefulWidget {
   final String genero;
@@ -13,86 +14,46 @@ class LibrosGenero extends StatefulWidget {
 }
 
 class _LibrosGeneroState extends State<LibrosGenero> {
-  void mostrarResena(Libro libro) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(libro.titulo),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (libro.portada.isNotEmpty)
-                  Image.network(
-                    libro.portada,
-                    height: 180,
-                    width: 120,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.book, size: 100);
-                    },
-                  ),
+  // ==========================================================
+  // ABRIR DETALLE DEL LIBRO
+  // ==========================================================
 
-                const SizedBox(height: 15),
-
-                Text(
-                  "Autor: ${libro.autor}",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-
-                const SizedBox(height: 10),
-
-                Text(
-                  "Género: ${libro.genero}",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-
-                const SizedBox(height: 15),
-
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Reseña:",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                Text(libro.resena),
-              ],
-            ),
-          ),
-
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Cerrar"),
-            ),
-          ],
-        );
-      },
+  void abrirDetalle(Libro libro) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DetalleLibro(libro: libro)),
     );
   }
+
+  // ==========================================================
+  // BUILD
+  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // ========================================================
+      // APP BAR
+      // ========================================================
       appBar: AppBar(
         title: Text(
           widget.genero,
+
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
+
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
+
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
 
-      body: StreamBuilder<QuerySnapshot>(
+      // ========================================================
+      // LIBROS DEL GENERO
+      // ========================================================
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream:
             FirebaseFirestore.instance
                 .collection("libros")
@@ -100,58 +61,134 @@ class _LibrosGeneroState extends State<LibrosGenero> {
                 .snapshots(),
 
         builder: (context, snapshot) {
-          // Cargando
+          // ====================================================
+          // CARGANDO
+          // ====================================================
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Error
+          // ====================================================
+          // ERROR
+          // ====================================================
+
           if (snapshot.hasError) {
             return Center(
-              child: Text(
-                "Ocurrió un error:\n${snapshot.error}",
-                textAlign: TextAlign.center,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 60,
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    const Text(
+                      "Ocurrió un error al cargar los libros.",
+
+                      textAlign: TextAlign.center,
+
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text("${snapshot.error}", textAlign: TextAlign.center),
+                  ],
+                ),
               ),
             );
           }
 
-          // No hay datos
+          // ====================================================
+          // SIN LIBROS
+          // ====================================================
+
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return Center(
-              child: Text(
-                "No hay libros de ${widget.genero}",
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+
+                children: [
+                  Icon(
+                    Icons.menu_book_outlined,
+
+                    size: 70,
+
+                    color: Colors.grey.shade400,
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Text(
+                    "No hay libros de\n"
+                    "${widget.genero}",
+
+                    textAlign: TextAlign.center,
+
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             );
           }
+
+          // ====================================================
+          // DOCUMENTOS DE FIRESTORE
+          // ====================================================
 
           final documentos = snapshot.data!.docs;
 
-          // Convertir documentos de Firestore a Libro
+          // ====================================================
+          // CONVERTIR A OBJETOS LIBRO
+          // ====================================================
+
           final List<Libro> libros =
               documentos.map((documento) {
-                final datos = documento.data() as Map<String, dynamic>;
+                final datos = documento.data();
 
                 return Libro(
-                  id: null,
+                  // IMPORTANTE:
+                  // Guardamos el ID REAL de Firestore
+                  id: documento.id,
+
                   portada: datos["portada"] ?? "",
+
                   titulo: datos["titulo"] ?? "",
+
                   autor: datos["autor"] ?? "",
+
                   genero: datos["genero"] ?? "",
+
                   resena: datos["resena"] ?? "",
                 );
               }).toList();
+
+          // ====================================================
+          // GRID
+          // ====================================================
 
           return GridView.builder(
             padding: const EdgeInsets.all(10),
 
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
+
               childAspectRatio: 0.65,
+
+              crossAxisSpacing: 8,
+
+              mainAxisSpacing: 8,
             ),
 
             itemCount: libros.length,
@@ -160,51 +197,76 @@ class _LibrosGeneroState extends State<LibrosGenero> {
               final libro = libros[index];
 
               return GestureDetector(
+                // ==============================================
+                // ABRIR DETALLE
+                // ==============================================
                 onTap: () {
-                  mostrarResena(libro);
+                  abrirDetalle(libro);
                 },
 
-                child: Container(
-                  margin: const EdgeInsets.all(10),
-
-                  child: Column(
-                    children: [
-                      ClipRRect(
+                child: Column(
+                  children: [
+                    // ==========================================
+                    // PORTADA
+                    // ==========================================
+                    Expanded(
+                      child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
 
-                        child: Image.network(
-                          libro.portada,
+                        child:
+                            libro.portada.isNotEmpty
+                                ? Image.network(
+                                  libro.portada,
 
-                          width: 100,
+                                  width: double.infinity,
 
-                          height: 120,
+                                  fit: BoxFit.cover,
 
-                          fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey.shade200,
 
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.book, size: 80);
-                          },
-                        ),
+                                      child: const Icon(
+                                        Icons.book,
+                                        size: 60,
+                                        color: Colors.grey,
+                                      ),
+                                    );
+                                  },
+                                )
+                                : Container(
+                                  color: Colors.grey.shade200,
+
+                                  child: const Icon(
+                                    Icons.book,
+                                    size: 60,
+                                    color: Colors.grey,
+                                  ),
+                                ),
                       ),
+                    ),
 
-                      const SizedBox(height: 10),
+                    const SizedBox(height: 8),
 
-                      Text(
-                        libro.titulo,
+                    // ==========================================
+                    // TITULO
+                    // ==========================================
+                    Text(
+                      libro.titulo,
 
-                        textAlign: TextAlign.center,
+                      textAlign: TextAlign.center,
 
-                        maxLines: 2,
+                      maxLines: 2,
 
-                        overflow: TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis,
 
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      style: const TextStyle(
+                        color: Colors.black,
+
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               );
             },
