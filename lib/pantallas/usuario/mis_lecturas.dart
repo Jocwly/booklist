@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:booklistt/modelo/libro.dart';
-import 'package:booklistt/pantallas/detalle_libro.dart';
+import 'package:booklistt/pantallas/admin/detalle_libro.dart';
 
 class MisLecturas extends StatefulWidget {
   const MisLecturas({super.key});

@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:booklistt/pantallas/admin.dart';
+import 'package:booklistt/pantallas/admin/admin.dart';
 import 'package:booklistt/pantallas/registrar.dart';
-import 'package:booklistt/pantallas/usuari.dart';
+import 'package:booklistt/pantallas/usuario/usuari.dart';
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -29,7 +29,6 @@ class _loginState extends State<login> {
 
   final GoogleSignIn googleSignIn = GoogleSignIn.instance;
 
-  // CLIENT ID WEB QUE APARECE EN TU google-services.json
   static const String serverClientId =
       "269827222664-606dsajql4e0jsbkb0hfcrg8jgps9df4.apps.googleusercontent.com";
 
@@ -41,10 +40,6 @@ class _loginState extends State<login> {
 
     inicializarGoogle();
   }
-
-  // ==========================================================
-  // INICIALIZAR GOOGLE SIGN-IN
-  // ==========================================================
 
   Future<void> inicializarGoogle() async {
     try {
@@ -65,10 +60,6 @@ class _loginState extends State<login> {
 
     super.dispose();
   }
-
-  // ==========================================================
-  // LOGIN NORMAL
-  // ==========================================================
 
   Future<bool> verificarLogin(String usuario, String contrasena) async {
     final usuarioLimpio = usuario.trim();
@@ -109,14 +100,8 @@ class _loginState extends State<login> {
     }
   }
 
-  // ==========================================================
-  // LOGIN CON GOOGLE
-  // ==========================================================
-
   Future<void> iniciarSesionGoogle() async {
     try {
-      // Por seguridad, nos aseguramos de que Google esté inicializado.
-
       if (!googleInicializado) {
         await inicializarGoogle();
       }
@@ -159,10 +144,6 @@ class _loginState extends State<login> {
 
       print("Usuario Firebase: ${usuario.email}");
 
-      // ======================================================
-      // GUARDAR / ACTUALIZAR USUARIO EN FIRESTORE
-      // ======================================================
-
       await db.collection("usuarios").doc(usuario.uid).set({
         "correo": usuario.email ?? "",
         "nombre": usuario.displayName ?? "",
@@ -172,8 +153,6 @@ class _loginState extends State<login> {
       print("Usuario guardado correctamente en Firestore");
 
       if (!mounted) return;
-
-      // Ir a la pantalla del usuario
 
       Navigator.pushReplacement(
         context,
@@ -208,10 +187,6 @@ class _loginState extends State<login> {
     }
   }
 
-  // ==========================================================
-  // INTERFAZ
-  // ==========================================================
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -238,9 +213,6 @@ class _loginState extends State<login> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // ==================================================
-                    // CORREO
-                    // ==================================================
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
@@ -268,9 +240,6 @@ class _loginState extends State<login> {
                       ),
                     ),
 
-                    // ==================================================
-                    // CONTRASEÑA
-                    // ==================================================
                     SizedBox(
                       width: 300,
                       height: 60,
@@ -298,9 +267,6 @@ class _loginState extends State<login> {
 
                     const SizedBox(height: 20),
 
-                    // ==================================================
-                    // INICIAR SESIÓN
-                    // ==================================================
                     OutlinedButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
@@ -335,9 +301,6 @@ class _loginState extends State<login> {
 
                     const SizedBox(height: 15),
 
-                    // ==================================================
-                    // GOOGLE
-                    // ==================================================
                     SizedBox(
                       width: 300,
                       child: OutlinedButton.icon(
@@ -371,9 +334,6 @@ class _loginState extends State<login> {
 
                     const SizedBox(height: 15),
 
-                    // ==================================================
-                    // REGISTRARSE
-                    // ==================================================
                     TextButton(
                       onPressed: () {
                         Navigator.push(
@@ -411,10 +371,6 @@ class _loginState extends State<login> {
     );
   }
 }
-
-// ==========================================================
-// ALERTA
-// ==========================================================
 
 void _ShowDatosIncorrectos(BuildContext context) {
   showDialog(

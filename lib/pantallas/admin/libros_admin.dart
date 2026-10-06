@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:booklistt/modelo/libro.dart';
-import 'package:booklistt/pantallas/agregar_libros.dart';
-import 'package:booklistt/pantallas/editar_libro.dart';
+import 'package:booklistt/pantallas/admin/agregar_libros.dart';
+import 'package:booklistt/pantallas/admin/editar_libro.dart';
 import 'package:booklistt/servicios/libro_service.dart';
 
 class LibrosAdmin extends StatefulWidget {

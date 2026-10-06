@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:booklistt/modelo/libro.dart';
-import 'package:booklistt/pantallas/detalle_libro.dart';
+import 'package:booklistt/pantallas/admin/detalle_libro.dart';
 
 class LibrosGenero extends StatefulWidget {
   final String genero;
@@ -14,10 +14,6 @@ class LibrosGenero extends StatefulWidget {
 }
 
 class _LibrosGeneroState extends State<LibrosGenero> {
-  // ==========================================================
-  // ABRIR DETALLE DEL LIBRO
-  // ==========================================================
-
   void abrirDetalle(Libro libro) {
     Navigator.push(
       context,
@@ -25,16 +21,9 @@ class _LibrosGeneroState extends State<LibrosGenero> {
     );
   }
 
-  // ==========================================================
-  // BUILD
-  // ==========================================================
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ========================================================
-      // APP BAR
-      // ========================================================
       appBar: AppBar(
         title: Text(
           widget.genero,
@@ -50,9 +39,6 @@ class _LibrosGeneroState extends State<LibrosGenero> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
 
-      // ========================================================
-      // LIBROS DEL GENERO
-      // ========================================================
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream:
             FirebaseFirestore.instance
@@ -61,17 +47,9 @@ class _LibrosGeneroState extends State<LibrosGenero> {
                 .snapshots(),
 
         builder: (context, snapshot) {
-          // ====================================================
-          // CARGANDO
-          // ====================================================
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
-          // ====================================================
-          // ERROR
-          // ====================================================
 
           if (snapshot.hasError) {
             return Center(
@@ -107,10 +85,6 @@ class _LibrosGeneroState extends State<LibrosGenero> {
             );
           }
 
-          // ====================================================
-          // SIN LIBROS
-          // ====================================================
-
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return Center(
               child: Column(
@@ -143,23 +117,13 @@ class _LibrosGeneroState extends State<LibrosGenero> {
             );
           }
 
-          // ====================================================
-          // DOCUMENTOS DE FIRESTORE
-          // ====================================================
-
           final documentos = snapshot.data!.docs;
-
-          // ====================================================
-          // CONVERTIR A OBJETOS LIBRO
-          // ====================================================
 
           final List<Libro> libros =
               documentos.map((documento) {
                 final datos = documento.data();
 
                 return Libro(
-                  // IMPORTANTE:
-                  // Guardamos el ID REAL de Firestore
                   id: documento.id,
 
                   portada: datos["portada"] ?? "",
@@ -173,10 +137,6 @@ class _LibrosGeneroState extends State<LibrosGenero> {
                   resena: datos["resena"] ?? "",
                 );
               }).toList();
-
-          // ====================================================
-          // GRID
-          // ====================================================
 
           return GridView.builder(
             padding: const EdgeInsets.all(10),
@@ -197,18 +157,12 @@ class _LibrosGeneroState extends State<LibrosGenero> {
               final libro = libros[index];
 
               return GestureDetector(
-                // ==============================================
-                // ABRIR DETALLE
-                // ==============================================
                 onTap: () {
                   abrirDetalle(libro);
                 },
 
                 child: Column(
                   children: [
-                    // ==========================================
-                    // PORTADA
-                    // ==========================================
                     Expanded(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
@@ -248,9 +202,6 @@ class _LibrosGeneroState extends State<LibrosGenero> {
 
                     const SizedBox(height: 8),
 
-                    // ==========================================
-                    // TITULO
-                    // ==========================================
                     Text(
                       libro.titulo,
 

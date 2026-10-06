@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:booklistt/modelo/libro.dart';
 import 'package:booklistt/servicios/favorito_service.dart';
-import 'package:booklistt/pantallas/detalle_libro.dart';
+import 'package:booklistt/pantallas/admin/detalle_libro.dart';
 
 class lista extends StatefulWidget {
   const lista({super.key});
@@ -13,10 +13,6 @@ class lista extends StatefulWidget {
 
 class _listaState extends State<lista> {
   final FavoritoService favoritoService = FavoritoService();
-
-  // ==========================================================
-  // CONFIRMAR ELIMINACIÓN
-  // ==========================================================
 
   void confirmarEliminar(Libro libro) {
     showDialog(
@@ -80,20 +76,12 @@ class _listaState extends State<lista> {
     );
   }
 
-  // ==========================================================
-  // ABRIR DETALLE
-  // ==========================================================
-
   void abrirDetalle(Libro libro) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => DetalleLibro(libro: libro)),
     );
   }
-
-  // ==========================================================
-  // BUILD
-  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
@@ -112,24 +100,13 @@ class _listaState extends State<lista> {
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
       ),
 
-      // ========================================================
-      // FAVORITOS
-      // ========================================================
       body: StreamBuilder<List<Libro>>(
         stream: favoritoService.obtenerFavoritos(),
 
         builder: (context, snapshot) {
-          // ====================================================
-          // CARGANDO
-          // ====================================================
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
-          // ====================================================
-          // ERROR
-          // ====================================================
 
           if (snapshot.hasError) {
             return Center(
@@ -170,10 +147,6 @@ class _listaState extends State<lista> {
 
           final favoritos = snapshot.data ?? [];
 
-          // ====================================================
-          // SIN FAVORITOS
-          // ====================================================
-
           if (favoritos.isEmpty) {
             return Center(
               child: Column(
@@ -206,10 +179,6 @@ class _listaState extends State<lista> {
             );
           }
 
-          // ====================================================
-          // LISTA
-          // ====================================================
-
           return ListView.builder(
             padding: const EdgeInsets.all(10),
 
@@ -233,9 +202,6 @@ class _listaState extends State<lista> {
                     vertical: 5,
                   ),
 
-                  // ==================================================
-                  // PORTADA
-                  // ==================================================
                   leading: ClipRRect(
                     borderRadius: BorderRadius.circular(6),
 
@@ -264,9 +230,6 @@ class _listaState extends State<lista> {
                     ),
                   ),
 
-                  // ==================================================
-                  // TITULO
-                  // ==================================================
                   title: Text(
                     libro.titulo,
 
@@ -277,9 +240,6 @@ class _listaState extends State<lista> {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
 
-                  // ==================================================
-                  // AUTOR + GENERO
-                  // ==================================================
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 5),
 
@@ -310,9 +270,6 @@ class _listaState extends State<lista> {
                     ),
                   ),
 
-                  // ==================================================
-                  // ELIMINAR FAVORITO
-                  // ==================================================
                   trailing: IconButton(
                     tooltip: "Eliminar de favoritos",
 
@@ -323,9 +280,6 @@ class _listaState extends State<lista> {
                     },
                   ),
 
-                  // ==================================================
-                  // ABRIR DETALLE
-                  // ==================================================
                   onTap: () {
                     abrirDetalle(libro);
                   },

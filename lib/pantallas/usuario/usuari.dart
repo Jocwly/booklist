@@ -1,10 +1,10 @@
 import 'package:booklistt/pantallas/genero.dart';
-import 'package:booklistt/pantallas/inicio.dart';
+import 'package:booklistt/pantallas/usuario/inicio.dart';
 import 'package:booklistt/pantallas/lista.dart';
 import 'package:booklistt/pantallas/login.dart';
-import 'package:booklistt/pantallas/mis_lecturas.dart';
+import 'package:booklistt/pantallas/usuario/mis_lecturas.dart';
 import 'package:booklistt/pantallas/pagina.dart';
-import 'package:booklistt/pantallas/perfil.dart';
+import 'package:booklistt/pantallas/usuario/perfil.dart';
 import 'package:flutter/material.dart';
 
 class UsuariAp extends StatefulWidget {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:booklistt/modelo/libro.dart';
 import 'package:booklistt/servicios/libro_service.dart';
-import 'package:booklistt/pantallas/detalle_libro.dart';
+import 'package:booklistt/pantallas/admin/detalle_libro.dart';
 
 class inicio extends StatefulWidget {
   const inicio({super.key});
@@ -27,10 +27,6 @@ class _inicioState extends State<inicio> {
     super.dispose();
   }
 
-  // ==========================================================
-  // BUSCAR LIBROS
-  // ==========================================================
-
   void buscarLibro(String texto) {
     final busqueda = texto.toLowerCase().trim();
 
@@ -49,20 +45,12 @@ class _inicioState extends State<inicio> {
     });
   }
 
-  // ==========================================================
-  // ABRIR DETALLE DEL LIBRO
-  // ==========================================================
-
   void abrirDetalle(Libro libro) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => DetalleLibro(libro: libro)),
     );
   }
-
-  // ==========================================================
-  // BUILD
-  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
@@ -83,9 +71,6 @@ class _inicioState extends State<inicio> {
 
             const SizedBox(width: 15),
 
-            // ==================================================
-            // BUSCADOR
-            // ==================================================
             Expanded(
               child: Container(
                 height: 45,
@@ -127,24 +112,13 @@ class _inicioState extends State<inicio> {
         ),
       ),
 
-      // ========================================================
-      // LIBROS
-      // ========================================================
       body: StreamBuilder<List<Libro>>(
         stream: libroService.obtenerLibros(),
 
         builder: (context, snapshot) {
-          // ====================================================
-          // CARGANDO
-          // ====================================================
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
-          // ====================================================
-          // ERROR
-          // ====================================================
 
           if (snapshot.hasError) {
             return Center(
@@ -180,10 +154,6 @@ class _inicioState extends State<inicio> {
             );
           }
 
-          // ====================================================
-          // SIN LIBROS
-          // ====================================================
-
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
               child: Column(
@@ -204,19 +174,11 @@ class _inicioState extends State<inicio> {
             );
           }
 
-          // ====================================================
-          // ACTUALIZAR LISTA
-          // ====================================================
-
           libros = snapshot.data!;
 
           if (buscarController.text.trim().isEmpty) {
             librosFiltrados = libros;
           }
-
-          // ====================================================
-          // SIN RESULTADOS
-          // ====================================================
 
           if (librosFiltrados.isEmpty) {
             return const Center(
@@ -241,10 +203,6 @@ class _inicioState extends State<inicio> {
               ),
             );
           }
-
-          // ====================================================
-          // GRID DE LIBROS
-          // ====================================================
 
           return GridView.builder(
             padding: const EdgeInsets.all(10),
@@ -271,9 +229,6 @@ class _inicioState extends State<inicio> {
 
                 child: Column(
                   children: [
-                    // ==========================================
-                    // PORTADA
-                    // ==========================================
                     Expanded(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
@@ -302,9 +257,6 @@ class _inicioState extends State<inicio> {
 
                     const SizedBox(height: 8),
 
-                    // ==========================================
-                    // TITULO
-                    // ==========================================
                     Text(
                       libro.titulo,
 

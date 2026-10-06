@@ -8,10 +8,6 @@ class FavoritoService {
 
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  // ==========================================================
-  // COLECCIÓN DE FAVORITOS DEL USUARIO ACTUAL
-  // ==========================================================
-
   CollectionReference<Map<String, dynamic>> _coleccionFavoritos() {
     final usuario = auth.currentUser;
 
@@ -21,10 +17,6 @@ class FavoritoService {
 
     return db.collection("favoritos").doc(usuario.uid).collection("libros");
   }
-
-  // ==========================================================
-  // AGREGAR FAVORITO
-  // ==========================================================
 
   Future<void> agregarFavorito(Libro libro) async {
     if (libro.id == null || libro.id!.isEmpty) {
@@ -40,10 +32,6 @@ class FavoritoService {
       "resena": libro.resena,
     });
   }
-
-  // ==========================================================
-  // OBTENER FAVORITOS
-  // ==========================================================
 
   Stream<List<Libro>> obtenerFavoritos() {
     final usuario = auth.currentUser;
@@ -72,10 +60,6 @@ class FavoritoService {
           }).toList();
         });
   }
-
-  // ==========================================================
-  // ELIMINAR FAVORITO
-  // ==========================================================
 
   Future<void> eliminarFavorito(Libro libro) async {
     if (libro.id == null || libro.id!.isEmpty) {

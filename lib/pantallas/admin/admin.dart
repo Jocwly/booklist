@@ -1,6 +1,6 @@
-import 'package:booklistt/pantallas/inicio_admin.dart';
-import 'package:booklistt/pantallas/libros_admin.dart';
-import 'package:booklistt/pantallas/listausuarios.dart';
+import 'package:booklistt/pantallas/admin/inicio_admin.dart';
+import 'package:booklistt/pantallas/admin/libros_admin.dart';
+import 'package:booklistt/pantallas/admin/listausuarios.dart';
 import 'package:booklistt/pantallas/pagina.dart';
 import 'package:flutter/material.dart';
 

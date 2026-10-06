@@ -10,10 +10,6 @@ class genero extends StatefulWidget {
 }
 
 class _generoState extends State<genero> {
-  // ---------------------------------------------------------
-  // ABRIR GENERO
-  // ---------------------------------------------------------
-
   void abrirGenero(String generoSeleccionado) {
     Navigator.push(
       context,
@@ -27,9 +23,6 @@ class _generoState extends State<genero> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // -----------------------------------------------------
-      // APP BAR
-      // -----------------------------------------------------
       appBar: AppBar(
         title: Container(
           height: 50,
@@ -66,21 +59,12 @@ class _generoState extends State<genero> {
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
       ),
 
-      // -----------------------------------------------------
-      // BODY
-      // -----------------------------------------------------
       body: ListView(
         children: [
           Column(
             children: [
-              // =================================================
-              // PRIMERA FILA
-              // =================================================
               Row(
                 children: [
-                  // ------------------------------------------------
-                  // CLASICOS
-                  // ------------------------------------------------
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -119,9 +103,6 @@ class _generoState extends State<genero> {
                     ),
                   ),
 
-                  // ------------------------------------------------
-                  // FICCION
-                  // ------------------------------------------------
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -160,9 +141,6 @@ class _generoState extends State<genero> {
                     ),
                   ),
 
-                  // ------------------------------------------------
-                  // AVENTURA
-                  // ------------------------------------------------
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -203,14 +181,8 @@ class _generoState extends State<genero> {
                 ],
               ),
 
-              // =================================================
-              // SEGUNDA FILA
-              // =================================================
               Row(
                 children: [
-                  // ------------------------------------------------
-                  // FANTASIA
-                  // ------------------------------------------------
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -249,9 +221,6 @@ class _generoState extends State<genero> {
                     ),
                   ),
 
-                  // ------------------------------------------------
-                  // SUSPENSO
-                  // ------------------------------------------------
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -290,9 +259,6 @@ class _generoState extends State<genero> {
                     ),
                   ),
 
-                  // ------------------------------------------------
-                  // MISTERIO
-                  // ------------------------------------------------
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -333,14 +299,8 @@ class _generoState extends State<genero> {
                 ],
               ),
 
-              // =================================================
-              // TERCERA FILA
-              // =================================================
               Row(
                 children: [
-                  // ------------------------------------------------
-                  // ROMANCE
-                  // ------------------------------------------------
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -378,10 +338,6 @@ class _generoState extends State<genero> {
                       ),
                     ),
                   ),
-
-                  // ------------------------------------------------
-                  // DRAMA
-                  // ------------------------------------------------
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -420,9 +376,6 @@ class _generoState extends State<genero> {
                     ),
                   ),
 
-                  // ------------------------------------------------
-                  // MITOLOGIA
-                  // ------------------------------------------------
                   Expanded(
                     child: GestureDetector(
                       onTap: () {

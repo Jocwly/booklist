@@ -12,18 +12,10 @@ class pagina extends StatefulWidget {
 }
 
 class _paginaState extends State<pagina> {
-  // =========================================================
-  // VARIABLES
-  // =========================================================
-
   List<Libro> libros = [];
   List<Libro> librosFiltrados = [];
 
   final TextEditingController buscarController = TextEditingController();
-
-  // =========================================================
-  // INIT STATE
-  // =========================================================
 
   @override
   void initState() {
@@ -33,10 +25,6 @@ class _paginaState extends State<pagina> {
       buscarLibro(buscarController.text);
     });
   }
-
-  // =========================================================
-  // BUSCADOR
-  // =========================================================
 
   void buscarLibro(String texto) {
     final busqueda = texto.toLowerCase().trim();
@@ -54,10 +42,6 @@ class _paginaState extends State<pagina> {
       }
     });
   }
-
-  // =========================================================
-  // MOSTRAR RESEÑA
-  // =========================================================
 
   void mostrarResena(BuildContext context, Libro libro) {
     showDialog(
@@ -120,26 +104,15 @@ class _paginaState extends State<pagina> {
     );
   }
 
-  // =========================================================
-  // DISPOSE
-  // =========================================================
-
   @override
   void dispose() {
     buscarController.dispose();
     super.dispose();
   }
 
-  // =========================================================
-  // BUILD
-  // =========================================================
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // =======================================================
-      // DRAWER
-      // =======================================================
       drawer: Drawer(
         child: ListView(
           children: [
@@ -155,9 +128,6 @@ class _paginaState extends State<pagina> {
 
             const Divider(),
 
-            // -------------------------------------------------
-            // INICIAR SESIÓN
-            // -------------------------------------------------
             ListTile(
               leading: const Icon(Icons.login, color: Colors.black),
 
@@ -176,9 +146,6 @@ class _paginaState extends State<pagina> {
 
             const Divider(),
 
-            // -------------------------------------------------
-            // CREAR CUENTA
-            // -------------------------------------------------
             ListTile(
               leading: const Icon(Icons.create, color: Colors.black),
 
@@ -198,9 +165,6 @@ class _paginaState extends State<pagina> {
         ),
       ),
 
-      // =======================================================
-      // APP BAR
-      // =======================================================
       appBar: AppBar(
         title: Row(
           children: [
@@ -211,9 +175,6 @@ class _paginaState extends State<pagina> {
 
             const SizedBox(width: 8),
 
-            // -------------------------------------------------
-            // BUSCADOR
-            // -------------------------------------------------
             Expanded(
               child: Container(
                 height: 50,
@@ -257,24 +218,13 @@ class _paginaState extends State<pagina> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
 
-      // =======================================================
-      // BODY
-      // =======================================================
       body: StreamBuilder<List<Libro>>(
         stream: LibroService().obtenerLibros(),
 
         builder: (context, snapshot) {
-          // ---------------------------------------------------
-          // CARGANDO
-          // ---------------------------------------------------
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
-          // ---------------------------------------------------
-          // ERROR
-          // ---------------------------------------------------
 
           if (snapshot.hasError) {
             return Center(
@@ -290,10 +240,6 @@ class _paginaState extends State<pagina> {
             );
           }
 
-          // ---------------------------------------------------
-          // NO HAY LIBROS
-          // ---------------------------------------------------
-
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
               child: Text(
@@ -303,15 +249,7 @@ class _paginaState extends State<pagina> {
             );
           }
 
-          // ---------------------------------------------------
-          // OBTENER LIBROS DE FIRESTORE
-          // ---------------------------------------------------
-
           libros = snapshot.data!;
-
-          // ---------------------------------------------------
-          // APLICAR FILTRO
-          // ---------------------------------------------------
 
           final texto = buscarController.text.toLowerCase().trim();
 
@@ -326,10 +264,6 @@ class _paginaState extends State<pagina> {
                 }).toList();
           }
 
-          // ---------------------------------------------------
-          // NO SE ENCONTRARON LIBROS
-          // ---------------------------------------------------
-
           if (librosFiltrados.isEmpty) {
             return const Center(
               child: Text(
@@ -338,10 +272,6 @@ class _paginaState extends State<pagina> {
               ),
             );
           }
-
-          // ---------------------------------------------------
-          // GRID DE LIBROS
-          // ---------------------------------------------------
 
           return GridView.builder(
             padding: const EdgeInsets.all(10),
@@ -427,9 +357,6 @@ class _paginaState extends State<pagina> {
 
                       const SizedBox(height: 10),
 
-                      // ---------------------------------------
-                      // TITULO
-                      // ---------------------------------------
                       Text(
                         libro.titulo,
 
