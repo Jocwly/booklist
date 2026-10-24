@@ -1,10 +1,9 @@
-// pantallas/registrar.dart
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:booklistt/pantallas/login.dart';
+import 'package:booklistt/estilos/registrar_estilos.dart';
 
 class registrar extends StatefulWidget {
   const registrar({super.key});
@@ -26,42 +25,57 @@ class _registrarState extends State<registrar> {
 
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
+  bool mostrarContrasena = false;
+
+  bool mostrarConfirmacion = false;
+
   @override
   void dispose() {
     nombre.dispose();
-
     contra.dispose();
-
     confcontra.dispose();
 
     super.dispose();
+  }
+
+  bool contrasenaSegura(String password) {
+    final tieneMayuscula = RegExp(r'[A-Z]').hasMatch(password);
+
+    final tieneMinuscula = RegExp(r'[a-z]').hasMatch(password);
+
+    final tieneNumero = RegExp(r'[0-9]').hasMatch(password);
+
+    final tieneEspecial = RegExp(
+      r'[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;]',
+    ).hasMatch(password);
+
+    return password.length >= 8 &&
+        tieneMayuscula &&
+        tieneMinuscula &&
+        tieneNumero &&
+        tieneEspecial;
   }
 
   Future<void> registrarUsuario() async {
     try {
       print("Iniciando registro...");
 
-      // CREAR USUARIO EN FIREBASE AUTH
+      // Crear usuario en Firebase Authentication
 
       UserCredential usuarioCreado = await auth.createUserWithEmailAndPassword(
         email: nombre.text.trim(),
-
-        password: contra.text.trim(),
+        password: contra.text,
       );
 
       print("Usuario creado: ${usuarioCreado.user!.uid}");
 
-      // GUARDAR DATOS EN FIRESTORE
       print("ANTES DE GUARDAR EN FIRESTORE");
 
       try {
         await db.collection("usuarios").doc(usuarioCreado.user!.uid).set({
           "uid": usuarioCreado.user!.uid,
-
           "correo": nombre.text.trim(),
-
           "rol": "usuario",
-
           "fechaRegistro": Timestamp.now(),
         });
 
@@ -69,6 +83,20 @@ class _registrarState extends State<registrar> {
       } catch (e) {
         print("ERROR FIRESTORE:");
         print(e);
+
+        await auth.signOut();
+
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "El usuario se creó, pero ocurrió un error al guardar sus datos.",
+            ),
+          ),
+        );
+
+        return;
       }
 
       print("Usuario guardado en Firestore correctamente");
@@ -81,24 +109,23 @@ class _registrarState extends State<registrar> {
 
       Navigator.pushReplacement(
         context,
-
         MaterialPageRoute(builder: (context) => const login()),
       );
     } on FirebaseAuthException catch (e) {
       print("ERROR FIREBASE AUTH:");
-
       print(e.code);
-
       print(e.message);
 
       String mensaje = "Error al registrar";
 
       if (e.code == "email-already-in-use") {
-        mensaje = "Este correo ya está registrado";
+        mensaje = "Este correo ya está registrado.";
       } else if (e.code == "weak-password") {
-        mensaje = "La contraseña debe tener mínimo 6 caracteres";
+        mensaje = "La contraseña no es lo suficientemente segura.";
       } else if (e.code == "invalid-email") {
-        mensaje = "El correo no es válido";
+        mensaje = "El correo no es válido.";
+      } else if (e.code == "network-request-failed") {
+        mensaje = "No hay conexión a Internet. Inténtalo nuevamente.";
       }
 
       if (mounted) {
@@ -108,17 +135,15 @@ class _registrarState extends State<registrar> {
       }
     } catch (e) {
       print("ERROR GENERAL:");
-
       print(e);
-
-      // Si Auth creó el usuario pero Firestore falló,
-      // cerramos sesión para evitar inconsistencias.
 
       await auth.signOut();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error guardando datos del usuario")),
+          const SnackBar(
+            content: Text("Ocurrió un error al registrar el usuario."),
+          ),
         );
       }
     }
@@ -131,25 +156,17 @@ class _registrarState extends State<registrar> {
 
       body: Center(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
 
             crossAxisAlignment: CrossAxisAlignment.center,
 
             children: [
-              const Text(
-                "REGISTRATE",
+              const Text("REGÍSTRATE", style: RegistrarEstilos.titulo),
 
-                style: TextStyle(
-                  fontSize: 24,
-
-                  fontWeight: FontWeight.bold,
-
-                  color: Color.fromARGB(255, 136, 42, 62),
-                ),
-              ),
-
-              const SizedBox(height: 20),
+              RegistrarEstilos.espacioTitulo,
 
               Form(
                 key: _formKey,
@@ -158,14 +175,24 @@ class _registrarState extends State<registrar> {
                   children: [
                     campoTexto(
                       controller: nombre,
-
-                      icon: Icons.person,
-
+                      icon: Icons.email,
                       texto: "Ingresa correo",
 
+                      tipoTeclado: TextInputType.emailAddress,
+
                       validar: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Escribe correo";
+                        if (value == null || value.trim().isEmpty) {
+                          return "Escribe un correo";
+                        }
+
+                        final correo = value.trim();
+
+                        final expresionCorreo = RegExp(
+                          r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                        );
+
+                        if (!expresionCorreo.hasMatch(correo)) {
+                          return "Ingresa un correo válido";
                         }
 
                         return null;
@@ -179,33 +206,136 @@ class _registrarState extends State<registrar> {
 
                       texto: "Contraseña",
 
-                      ocultar: true,
+                      ocultar: !mostrarContrasena,
+
+                      mostrarBoton: true,
+
+                      onMostrar: () {
+                        setState(() {
+                          mostrarContrasena = !mostrarContrasena;
+                        });
+                      },
 
                       validar: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Escribe contraseña";
+                          return "Escribe una contraseña";
                         }
 
-                        if (value.length < 6) {
-                          return "Mínimo 6 caracteres";
+                        if (value.length < 8) {
+                          return "Mínimo 8 caracteres";
+                        }
+
+                        if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                          return "Debe contener una mayúscula";
+                        }
+
+                        if (!RegExp(r'[a-z]').hasMatch(value)) {
+                          return "Debe contener una minúscula";
+                        }
+
+                        if (!RegExp(r'[0-9]').hasMatch(value)) {
+                          return "Debe contener un número";
+                        }
+
+                        if (!RegExp(
+                          r'[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;]',
+                        ).hasMatch(value)) {
+                          return "Debe contener un carácter especial";
                         }
 
                         return null;
                       },
                     ),
 
+                    /* Container(
+                      width: RegistrarEstilos.anchoCampo,
+
+                      margin: const EdgeInsets.only(
+                        left: 8,
+                        right: 8,
+                        bottom: 8,
+                      ),
+
+                      padding: RegistrarEstilos.paddingRequisitos,
+
+                      decoration: RegistrarEstilos.requisitos,
+
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                        children: [
+                          const Text(
+                            "La contraseña debe tener:",
+
+                            style: RegistrarEstilos.tituloRequisitos,
+                          ),
+
+                          const SizedBox(height: 5),
+
+                          Text(
+                            "• Mínimo 8 caracteres",
+
+                            style: RegistrarEstilos.requisito(
+                              cumplido: contra.text.length >= 8,
+                            ),
+                          ),
+
+                          Text(
+                            "• Una letra mayúscula",
+
+                            style: RegistrarEstilos.requisito(
+                              cumplido: RegExp(r'[A-Z]').hasMatch(contra.text),
+                            ),
+                          ),
+
+                          Text(
+                            "• Una letra minúscula",
+
+                            style: RegistrarEstilos.requisito(
+                              cumplido: RegExp(r'[a-z]').hasMatch(contra.text),
+                            ),
+                          ),
+
+                          Text(
+                            "• Un número",
+
+                            style: RegistrarEstilos.requisito(
+                              cumplido: RegExp(r'[0-9]').hasMatch(contra.text),
+                            ),
+                          ),
+
+                          Text(
+                            "• Un carácter especial (!, @, #, \$, etc.)",
+
+                            style: RegistrarEstilos.requisito(
+                              cumplido: RegExp(
+                                r'[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;]',
+                              ).hasMatch(contra.text),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),*/
                     campoTexto(
                       controller: confcontra,
 
-                      icon: Icons.lock,
+                      icon: Icons.lock_outline,
 
                       texto: "Confirmar contraseña",
 
-                      ocultar: true,
+                      ocultar: !mostrarConfirmacion,
+
+                      mostrarBoton: true,
+
+                      onMostrar: () {
+                        setState(() {
+                          mostrarConfirmacion = !mostrarConfirmacion;
+                        });
+                      },
 
                       validar: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Confirma contraseña";
+                          return "Confirma la contraseña";
                         }
 
                         if (value != contra.text) {
@@ -216,33 +346,23 @@ class _registrarState extends State<registrar> {
                       },
                     ),
 
-                    const SizedBox(height: 20),
+                    RegistrarEstilos.espacioBoton,
 
                     ElevatedButton(
                       onPressed: () async {
+                        FocusScope.of(context).unfocus();
+
                         if (_formKey.currentState!.validate()) {
                           await registrarUsuario();
                         }
                       },
 
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 136, 42, 62),
-
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 113,
-
-                          vertical: 15,
-                        ),
-                      ),
+                      style: RegistrarEstilos.botonRegistrar,
 
                       child: const Text(
-                        "Registrate",
+                        "Regístrate",
 
-                        style: TextStyle(
-                          color: Colors.white,
-
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: RegistrarEstilos.textoBoton,
                       ),
                     ),
                   ],
@@ -264,37 +384,52 @@ class _registrarState extends State<registrar> {
 
     bool ocultar = false,
 
+    bool mostrarBoton = false,
+
+    VoidCallback? onMostrar,
+
+    TextInputType? tipoTeclado,
+
     String? Function(String?)? validar,
   }) {
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: RegistrarEstilos.margenCampo,
 
       child: SizedBox(
-        width: 300,
+        width: RegistrarEstilos.anchoCampo,
 
-        height: 60,
+        height: RegistrarEstilos.altoCampo,
 
         child: TextFormField(
           controller: controller,
 
           obscureText: ocultar,
 
+          keyboardType: tipoTeclado,
+
           validator: validar,
 
-          decoration: InputDecoration(
-            prefixIcon: Icon(icon),
+          onChanged: (value) {
+            if (controller == contra) {
+              setState(() {});
+            }
+          },
 
-            labelText: texto,
+          decoration: RegistrarEstilos.decoracionCampo(
+            texto: texto,
 
-            filled: true,
+            icono: icon,
 
-            fillColor: const Color.fromARGB(255, 217, 217, 217),
+            iconoFinal:
+                mostrarBoton
+                    ? IconButton(
+                      onPressed: onMostrar,
 
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-
-              borderSide: BorderSide.none,
-            ),
+                      icon: Icon(
+                        ocultar ? Icons.visibility : Icons.visibility_off,
+                      ),
+                    )
+                    : null,
           ),
         ),
       ),
