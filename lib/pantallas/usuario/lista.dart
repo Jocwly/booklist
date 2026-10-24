@@ -87,6 +87,7 @@ class _listaState extends State<lista> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           "MI LISTA DE DESEOS",
 
