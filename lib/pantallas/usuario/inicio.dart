@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:booklistt/modelo/libro.dart';
 import 'package:booklistt/servicios/libro_service.dart';
-import 'package:booklistt/pantallas/admin/detalle_libro.dart';
+import 'package:booklistt/pantallas/usuario/detalle_libro.dart';
 
 class inicio extends StatefulWidget {
   const inicio({super.key});

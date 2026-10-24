@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:booklistt/modelo/libro.dart';
-import 'package:booklistt/pantallas/admin/detalle_libro.dart';
+import 'package:booklistt/pantallas/usuario/detalle_libro.dart';
 
 class LibrosGenero extends StatefulWidget {
   final String genero;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:booklistt/modelo/libro.dart';
 import 'package:booklistt/servicios/favorito_service.dart';
-import 'package:booklistt/pantallas/admin/detalle_libro.dart';
+import 'package:booklistt/pantallas/usuario/detalle_libro.dart';
 
 class lista extends StatefulWidget {
   const lista({super.key});

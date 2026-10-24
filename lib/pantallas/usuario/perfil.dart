@@ -1,9 +1,10 @@
+import 'package:booklistt/pantallas/usuario/mis_lecturas.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:booklistt/pantallas/login.dart';
-import 'package:booklistt/pantallas/lista.dart';
+import 'package:booklistt/pantallas/usuario/lista.dart';
 
 class Perfil extends StatefulWidget {
   const Perfil({super.key});
@@ -26,13 +27,8 @@ class _PerfilState extends State<Perfil> {
   @override
   void initState() {
     super.initState();
-
     cargarDatos();
   }
-
-  // ==========================================================
-  // CARGAR DATOS
-  // ==========================================================
 
   Future<void> cargarDatos() async {
     final usuario = auth.currentUser;
@@ -48,12 +44,10 @@ class _PerfilState extends State<Perfil> {
     }
 
     try {
-      // ========================================================
-      // FAVORITOS
-      // favoritos/{uid}/libros
-      // ========================================================
-
       int favoritos = 0;
+      int lecturas = 0;
+      int opiniones = 0;
+      int calificaciones = 0;
 
       try {
         final datosFavoritos =
@@ -68,13 +62,6 @@ class _PerfilState extends State<Perfil> {
         debugPrint("Error al cargar favoritos: $e");
       }
 
-      // ========================================================
-      // LECTURAS
-      // usuarios/{uid}/lecturas
-      // ========================================================
-
-      int lecturas = 0;
-
       try {
         final datosLecturas =
             await db
@@ -88,13 +75,6 @@ class _PerfilState extends State<Perfil> {
         debugPrint("Error al cargar lecturas: $e");
       }
 
-      // ========================================================
-      // OPINIONES
-      // usuarios/{uid}/opiniones
-      // ========================================================
-
-      int opiniones = 0;
-
       try {
         final datosOpiniones =
             await db
@@ -107,19 +87,6 @@ class _PerfilState extends State<Perfil> {
       } catch (e) {
         debugPrint("Error al cargar opiniones: $e");
       }
-
-      // ========================================================
-      // CALIFICACIONES
-      //
-      // Las calificaciones están guardadas dentro de cada libro:
-      //
-      // libros/{libroId}/calificaciones/{uid}
-      //
-      // Por eso obtenemos todos los libros y revisamos
-      // si existe una calificación del usuario.
-      // ========================================================
-
-      int calificaciones = 0;
 
       try {
         final libros = await db.collection("libros").get();
@@ -148,7 +115,6 @@ class _PerfilState extends State<Perfil> {
         cantidadLecturas = lecturas;
         cantidadCalificaciones = calificaciones;
         cantidadOpiniones = opiniones;
-
         cargando = false;
       });
     } catch (e) {
@@ -162,10 +128,6 @@ class _PerfilState extends State<Perfil> {
     }
   }
 
-  // ==========================================================
-  // NOMBRE DEL USUARIO
-  // ==========================================================
-
   String obtenerNombre() {
     final usuario = auth.currentUser;
 
@@ -173,22 +135,16 @@ class _PerfilState extends State<Perfil> {
       return "Usuario";
     }
 
-    // Google u otro proveedor
     if (usuario.displayName != null && usuario.displayName!.trim().isNotEmpty) {
       return usuario.displayName!;
     }
 
-    // Usuario registrado con correo
     if (usuario.email != null && usuario.email!.contains("@")) {
       return usuario.email!.split("@").first;
     }
 
     return "Usuario";
   }
-
-  // ==========================================================
-  // CERRAR SESIÓN
-  // ==========================================================
 
   Future<void> cerrarSesion() async {
     final confirmar = await showDialog<bool>(
@@ -224,9 +180,7 @@ class _PerfilState extends State<Perfil> {
       },
     );
 
-    if (confirmar != true) {
-      return;
-    }
+    if (confirmar != true) return;
 
     try {
       await auth.signOut();
@@ -246,10 +200,6 @@ class _PerfilState extends State<Perfil> {
       ).showSnackBar(SnackBar(content: Text("Error al cerrar sesión: $e")));
     }
   }
-
-  // ==========================================================
-  // TARJETA DE ESTADÍSTICA
-  // ==========================================================
 
   Widget tarjetaEstadistica({
     required IconData icono,
@@ -282,9 +232,7 @@ class _PerfilState extends State<Perfil> {
             ),
             child: Icon(icono, color: color, size: 25),
           ),
-
           const SizedBox(height: 10),
-
           Text(
             cantidad.toString(),
             style: const TextStyle(
@@ -293,9 +241,7 @@ class _PerfilState extends State<Perfil> {
               color: Color.fromARGB(255, 136, 42, 62),
             ),
           ),
-
           const SizedBox(height: 3),
-
           Text(
             titulo,
             textAlign: TextAlign.center,
@@ -305,10 +251,6 @@ class _PerfilState extends State<Perfil> {
       ),
     );
   }
-
-  // ==========================================================
-  // TARJETA DE OPCIÓN
-  // ==========================================================
 
   Widget tarjetaOpcion({
     required IconData icono,
@@ -332,7 +274,6 @@ class _PerfilState extends State<Perfil> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-
         leading: Container(
           width: 45,
           height: 45,
@@ -342,36 +283,43 @@ class _PerfilState extends State<Perfil> {
           ),
           child: Icon(icono, color: color),
         ),
-
         title: Text(
           titulo,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-
         subtitle: Text(subtitulo),
-
         trailing: const Icon(Icons.arrow_forward_ios, size: 18),
-
         onTap: onTap,
       ),
     );
   }
 
-  // ==========================================================
-  // MENSAJE TEMPORAL
-  // ==========================================================
-
-  void mostrarMensaje(String mensaje) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(
+  Future<void> abrirMisLecturas() async {
+    await Navigator.push(
       context,
-    ).showSnackBar(SnackBar(content: Text(mensaje)));
+      MaterialPageRoute(builder: (context) => const MisLecturas()),
+    );
+
+    cargarDatos();
   }
 
-  // ==========================================================
-  // BUILD
-  // ==========================================================
+  Future<void> abrirMisCalificaciones() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MisCalificaciones()),
+    );
+
+    cargarDatos();
+  }
+
+  Future<void> abrirMisOpiniones() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MisOpiniones()),
+    );
+
+    cargarDatos();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -404,9 +352,6 @@ class _PerfilState extends State<Perfil> {
 
                   child: Column(
                     children: [
-                      // ==================================================
-                      // FOTO DEL USUARIO
-                      // ==================================================
                       CircleAvatar(
                         radius: 55,
 
@@ -429,13 +374,9 @@ class _PerfilState extends State<Perfil> {
 
                       const SizedBox(height: 15),
 
-                      // ==================================================
-                      // NOMBRE
-                      // ==================================================
                       Text(
                         "¡Hola, ${obtenerNombre()}!",
                         textAlign: TextAlign.center,
-
                         style: const TextStyle(
                           fontSize: 23,
                           fontWeight: FontWeight.bold,
@@ -445,14 +386,9 @@ class _PerfilState extends State<Perfil> {
 
                       const SizedBox(height: 7),
 
-                      // ==================================================
-                      // CORREO
-                      // ==================================================
                       Text(
                         usuario?.email ?? "Sin correo",
-
                         textAlign: TextAlign.center,
-
                         style: TextStyle(
                           color: Colors.grey.shade700,
                           fontSize: 14,
@@ -461,15 +397,10 @@ class _PerfilState extends State<Perfil> {
 
                       const SizedBox(height: 25),
 
-                      // ==================================================
-                      // MI ACTIVIDAD
-                      // ==================================================
                       const Align(
                         alignment: Alignment.centerLeft,
-
                         child: Text(
                           "Mi actividad",
-
                           style: TextStyle(
                             fontSize: 19,
                             fontWeight: FontWeight.bold,
@@ -484,7 +415,6 @@ class _PerfilState extends State<Perfil> {
                         spacing: 12,
                         runSpacing: 12,
                         alignment: WrapAlignment.center,
-
                         children: [
                           tarjetaEstadistica(
                             icono: Icons.favorite,
@@ -518,15 +448,10 @@ class _PerfilState extends State<Perfil> {
 
                       const SizedBox(height: 30),
 
-                      // ==================================================
-                      // OPCIONES
-                      // ==================================================
                       const Align(
                         alignment: Alignment.centerLeft,
-
                         child: Text(
                           "Mi biblioteca",
-
                           style: TextStyle(
                             fontSize: 19,
                             fontWeight: FontWeight.bold,
@@ -537,78 +462,49 @@ class _PerfilState extends State<Perfil> {
 
                       const SizedBox(height: 15),
 
-                      // ==================================================
-                      // FAVORITOS
-                      // ==================================================
                       tarjetaOpcion(
                         icono: Icons.favorite,
                         titulo: "Mi lista de deseos",
                         subtitulo: "$cantidadFavoritos libros guardados",
                         color: Colors.red,
-
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const lista(),
                             ),
                           );
+
+                          cargarDatos();
                         },
                       ),
 
-                      // ==================================================
-                      // LECTURAS
-                      // ==================================================
                       tarjetaOpcion(
                         icono: Icons.menu_book,
                         titulo: "Mis lecturas",
                         subtitulo: "$cantidadLecturas libros en seguimiento",
                         color: Colors.blue,
-
-                        onTap: () {
-                          mostrarMensaje(
-                            "Aquí podrás consultar tus libros en lectura 📚",
-                          );
-                        },
+                        onTap: abrirMisLecturas,
                       ),
 
-                      // ==================================================
-                      // CALIFICACIONES
-                      // ==================================================
                       tarjetaOpcion(
                         icono: Icons.star,
                         titulo: "Mis calificaciones",
                         subtitulo: "$cantidadCalificaciones libros calificados",
                         color: Colors.orange,
-
-                        onTap: () {
-                          mostrarMensaje(
-                            "Aquí podrás consultar tus calificaciones ⭐",
-                          );
-                        },
+                        onTap: abrirMisCalificaciones,
                       ),
 
-                      // ==================================================
-                      // OPINIONES
-                      // ==================================================
                       tarjetaOpcion(
                         icono: Icons.comment,
                         titulo: "Mis opiniones",
                         subtitulo: "$cantidadOpiniones opiniones publicadas",
                         color: Colors.green,
-
-                        onTap: () {
-                          mostrarMensaje(
-                            "Aquí podrás consultar tus opiniones 💬",
-                          );
-                        },
+                        onTap: abrirMisOpiniones,
                       ),
 
                       const SizedBox(height: 20),
 
-                      // ==================================================
-                      // CERRAR SESIÓN
-                      // ==================================================
                       SizedBox(
                         width: double.infinity,
 
@@ -619,7 +515,6 @@ class _PerfilState extends State<Perfil> {
 
                           label: const Text(
                             "Cerrar sesión",
-
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -648,6 +543,800 @@ class _PerfilState extends State<Perfil> {
                   ),
                 ),
               ),
+    );
+  }
+}
+
+class MisCalificaciones extends StatefulWidget {
+  const MisCalificaciones({super.key});
+
+  @override
+  State<MisCalificaciones> createState() => _MisCalificacionesState();
+}
+
+class _MisCalificacionesState extends State<MisCalificaciones> {
+  final FirebaseFirestore db = FirebaseFirestore.instance;
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  Future<List<Map<String, dynamic>>> obtenerCalificaciones() async {
+    final usuario = auth.currentUser;
+
+    if (usuario == null) {
+      return [];
+    }
+
+    final resultado = <Map<String, dynamic>>[];
+
+    final libros = await db.collection("libros").get();
+
+    for (final libro in libros.docs) {
+      final calificacion =
+          await db
+              .collection("libros")
+              .doc(libro.id)
+              .collection("calificaciones")
+              .doc(usuario.uid)
+              .get();
+
+      if (!calificacion.exists) {
+        continue;
+      }
+
+      final datosLibro = libro.data();
+
+      final datosCalificacion = calificacion.data() ?? {};
+
+      resultado.add({
+        "libroId": libro.id,
+        "titulo": datosLibro["titulo"] ?? "Sin título",
+        "autor": datosLibro["autor"] ?? "Autor desconocido",
+        "portada": datosLibro["portada"] ?? "",
+        "estrellas": datosCalificacion["estrellas"] ?? 0,
+      });
+    }
+
+    return resultado;
+  }
+
+  Future<void> editarCalificacion(Map<String, dynamic> datos) async {
+    int estrellasActuales = datos["estrellas"] ?? 0;
+
+    int nuevasEstrellas = estrellasActuales;
+
+    final resultado = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text("Editar calificación"),
+
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    datos["titulo"] ?? "Libro",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  const Text("Selecciona tu nueva calificación:"),
+
+                  const SizedBox(height: 10),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      final numero = index + 1;
+
+                      return IconButton(
+                        onPressed: () {
+                          setDialogState(() {
+                            nuevasEstrellas = numero;
+                          });
+                        },
+                        icon: Icon(
+                          numero <= nuevasEstrellas
+                              ? Icons.star
+                              : Icons.star_border,
+                          color: Colors.orange,
+                          size: 35,
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              ),
+
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text("Cancelar"),
+                ),
+
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 136, 42, 62),
+                  ),
+                  onPressed:
+                      nuevasEstrellas == 0
+                          ? null
+                          : () {
+                            Navigator.pop(dialogContext, nuevasEstrellas);
+                          },
+                  child: const Text(
+                    "Guardar",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (resultado == null) {
+      return;
+    }
+
+    try {
+      final usuario = auth.currentUser;
+
+      if (usuario == null) {
+        return;
+      }
+
+      await db
+          .collection("libros")
+          .doc(datos["libroId"])
+          .collection("calificaciones")
+          .doc(usuario.uid)
+          .update({"estrellas": resultado});
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Calificación actualizada correctamente")),
+      );
+
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error al actualizar: $e")));
+    }
+  }
+
+  Future<void> eliminarCalificacion(Map<String, dynamic> datos) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Eliminar calificación"),
+
+          content: Text(
+            "¿Quieres eliminar tu calificación de "
+            "\"${datos["titulo"]}\"?",
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text("Cancelar"),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+
+              child: const Text(
+                "Eliminar",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true) {
+      return;
+    }
+
+    try {
+      final usuario = auth.currentUser;
+
+      if (usuario == null) {
+        return;
+      }
+
+      await db
+          .collection("libros")
+          .doc(datos["libroId"])
+          .collection("calificaciones")
+          .doc(usuario.uid)
+          .delete();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Calificación eliminada correctamente")),
+      );
+
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error al eliminar: $e")));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFF8FA),
+
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 136, 42, 62),
+
+        iconTheme: const IconThemeData(color: Colors.white),
+
+        title: const Text(
+          "Mis calificaciones",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: obtenerCalificaciones(),
+
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                "Error al cargar tus calificaciones:\n"
+                "${snapshot.error}",
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+
+          final calificaciones = snapshot.data ?? [];
+
+          if (calificaciones.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.star_border, size: 70, color: Colors.grey),
+                  SizedBox(height: 15),
+                  Text(
+                    "Todavía no has calificado\n"
+                    "ningún libro.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 17),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(15),
+
+            itemCount: calificaciones.length,
+
+            itemBuilder: (context, index) {
+              final datos = calificaciones[index];
+
+              final titulo = datos["titulo"] ?? "Sin título";
+
+              final autor = datos["autor"] ?? "Autor desconocido";
+
+              final portada = datos["portada"] ?? "";
+
+              final estrellas = datos["estrellas"] ?? 0;
+
+              return Card(
+                elevation: 3,
+
+                margin: const EdgeInsets.only(bottom: 12),
+
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(10),
+
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(7),
+
+                    child: Image.network(
+                      portada,
+
+                      width: 65,
+                      height: 85,
+
+                      fit: BoxFit.cover,
+
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 65,
+                          height: 85,
+                          color: Colors.grey.shade200,
+                          child: const Icon(Icons.book),
+                        );
+                      },
+                    ),
+                  ),
+
+                  title: Text(
+                    titulo,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                    children: [
+                      const SizedBox(height: 5),
+
+                      Text(autor),
+
+                      const SizedBox(height: 8),
+
+                      Row(
+                        children: List.generate(5, (i) {
+                          return Icon(
+                            i < estrellas ? Icons.star : Icons.star_border,
+                            color: Colors.orange,
+                            size: 20,
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+
+                  trailing: PopupMenuButton<String>(
+                    onSelected: (opcion) {
+                      if (opcion == "editar") {
+                        editarCalificacion(datos);
+                      }
+
+                      if (opcion == "eliminar") {
+                        eliminarCalificacion(datos);
+                      }
+                    },
+
+                    itemBuilder:
+                        (context) => [
+                          const PopupMenuItem(
+                            value: "editar",
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit, color: Colors.blue),
+                                SizedBox(width: 10),
+                                Text("Editar"),
+                              ],
+                            ),
+                          ),
+
+                          const PopupMenuItem(
+                            value: "eliminar",
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete, color: Colors.red),
+                                SizedBox(width: 10),
+                                Text("Eliminar"),
+                              ],
+                            ),
+                          ),
+                        ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class MisOpiniones extends StatefulWidget {
+  const MisOpiniones({super.key});
+
+  @override
+  State<MisOpiniones> createState() => _MisOpinionesState();
+}
+
+class _MisOpinionesState extends State<MisOpiniones> {
+  final FirebaseFirestore db = FirebaseFirestore.instance;
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  Future<void> editarOpinion(DocumentSnapshot documento) async {
+    final datos = documento.data() as Map<String, dynamic>;
+
+    final controlador = TextEditingController(text: datos["opinion"] ?? "");
+
+    final nuevaOpinion = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Editar opinión"),
+
+          content: TextField(
+            controller: controlador,
+
+            maxLines: 6,
+
+            maxLength: 500,
+
+            decoration: const InputDecoration(
+              labelText: "Tu opinión",
+              hintText: "Escribe tu opinión...",
+              border: OutlineInputBorder(),
+            ),
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text("Cancelar"),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 136, 42, 62),
+              ),
+
+              onPressed: () {
+                final texto = controlador.text.trim();
+
+                if (texto.isEmpty) {
+                  return;
+                }
+
+                Navigator.pop(dialogContext, texto);
+              },
+
+              child: const Text(
+                "Guardar",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    controlador.dispose();
+
+    if (nuevaOpinion == null || nuevaOpinion.trim().isEmpty) {
+      return;
+    }
+
+    try {
+      await db
+          .collection("usuarios")
+          .doc(auth.currentUser!.uid)
+          .collection("opiniones")
+          .doc(documento.id)
+          .update({"opinion": nuevaOpinion.trim(), "fecha": Timestamp.now()});
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Opinión actualizada correctamente")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error al actualizar la opinión: $e")),
+      );
+    }
+  }
+
+  Future<void> eliminarOpinion(DocumentSnapshot documento) async {
+    final datos = documento.data() as Map<String, dynamic>;
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Eliminar opinión"),
+
+          content: Text(
+            "¿Quieres eliminar tu opinión "
+            "sobre \"${datos["tituloLibro"] ?? "este libro"}\"?",
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text("Cancelar"),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+
+              child: const Text(
+                "Eliminar",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true) {
+      return;
+    }
+
+    try {
+      await db
+          .collection("usuarios")
+          .doc(auth.currentUser!.uid)
+          .collection("opiniones")
+          .doc(documento.id)
+          .delete();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Opinión eliminada correctamente")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error al eliminar la opinión: $e")),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final usuario = auth.currentUser;
+
+    if (usuario == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text("Mis opiniones")),
+
+        body: const Center(child: Text("Debes iniciar sesión.")),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFF8FA),
+
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 136, 42, 62),
+
+        iconTheme: const IconThemeData(color: Colors.white),
+
+        title: const Text(
+          "Mis opiniones",
+
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream:
+            db
+                .collection("usuarios")
+                .doc(usuario.uid)
+                .collection("opiniones")
+                .orderBy("fecha", descending: true)
+                .snapshots(),
+
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                "Error al cargar tus opiniones:\n"
+                "${snapshot.error}",
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+
+          final opiniones = snapshot.data?.docs ?? [];
+
+          if (opiniones.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.chat_bubble_outline, size: 70, color: Colors.grey),
+
+                  SizedBox(height: 15),
+
+                  Text(
+                    "Todavía no has publicado\n"
+                    "ninguna opinión.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 17),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(15),
+
+            itemCount: opiniones.length,
+
+            itemBuilder: (context, index) {
+              final documento = opiniones[index];
+
+              final datos = documento.data();
+
+              final titulo = datos["tituloLibro"] ?? "Libro";
+
+              final opinion = datos["opinion"] ?? "";
+
+              final fecha = datos["fecha"];
+
+              String fechaTexto = "";
+
+              if (fecha is Timestamp) {
+                final fechaDate = fecha.toDate();
+
+                fechaTexto =
+                    "${fechaDate.day}/"
+                    "${fechaDate.month}/"
+                    "${fechaDate.year}";
+              }
+
+              return Card(
+                elevation: 3,
+
+                margin: const EdgeInsets.only(bottom: 12),
+
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 45,
+                            height: 45,
+
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.12),
+                              shape: BoxShape.circle,
+                            ),
+
+                            child: const Icon(
+                              Icons.comment,
+                              color: Colors.green,
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: [
+                                Text(
+                                  titulo,
+
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+
+                                if (fechaTexto.isNotEmpty)
+                                  Text(
+                                    fechaTexto,
+
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+
+                          PopupMenuButton<String>(
+                            onSelected: (opcion) {
+                              if (opcion == "editar") {
+                                editarOpinion(documento);
+                              }
+
+                              if (opcion == "eliminar") {
+                                eliminarOpinion(documento);
+                              }
+                            },
+
+                            itemBuilder:
+                                (context) => [
+                                  const PopupMenuItem(
+                                    value: "editar",
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit, color: Colors.blue),
+                                        SizedBox(width: 10),
+                                        Text("Editar"),
+                                      ],
+                                    ),
+                                  ),
+
+                                  const PopupMenuItem(
+                                    value: "eliminar",
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.delete, color: Colors.red),
+                                        SizedBox(width: 10),
+                                        Text("Eliminar"),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      Text(
+                        opinion,
+
+                        style: const TextStyle(fontSize: 15, height: 1.4),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

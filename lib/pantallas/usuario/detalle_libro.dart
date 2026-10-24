@@ -21,25 +21,13 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
   final FavoritoService favoritoService = FavoritoService();
 
-  // ==========================================================
-  // FAVORITOS
-  // ==========================================================
-
   bool esFavorito = false;
 
   bool cargandoFavorito = true;
 
   bool guardandoFavorito = false;
 
-  // ==========================================================
-  // ESTADO DE LECTURA
-  // ==========================================================
-
   String estadoLectura = "No iniciado";
-
-  // ==========================================================
-  // CALIFICACIONES
-  // ==========================================================
 
   double promedio = 0;
 
@@ -49,17 +37,9 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
   int miCalificacion = 0;
 
-  // ==========================================================
-  // OPINIONES
-  // ==========================================================
-
   final TextEditingController opinionController = TextEditingController();
 
   bool publicandoOpinion = false;
-
-  // ==========================================================
-  // INIT
-  // ==========================================================
 
   @override
   void initState() {
@@ -75,17 +55,9 @@ class _DetalleLibroState extends State<DetalleLibro> {
     super.dispose();
   }
 
-  // ==========================================================
-  // USUARIO ACTUAL
-  // ==========================================================
-
   User? get usuarioActual {
     return auth.currentUser;
   }
-
-  // ==========================================================
-  // CARGAR DATOS
-  // ==========================================================
 
   Future<void> cargarDatos() async {
     await Future.wait([
@@ -94,10 +66,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
       cargarCalificacion(),
     ]);
   }
-
-  // ==========================================================
-  // FAVORITO
-  // ==========================================================
 
   Future<void> cargarFavorito() async {
     final usuario = usuarioActual;
@@ -115,13 +83,13 @@ class _DetalleLibroState extends State<DetalleLibro> {
     }
 
     try {
-      // AHORA UTILIZAMOS EL FAVORITOSERVICE
       final favorito = await favoritoService.esFavorito(widget.libro);
 
       if (!mounted) return;
 
       setState(() {
         esFavorito = favorito;
+
         cargandoFavorito = false;
       });
     } catch (e) {
@@ -134,10 +102,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
       });
     }
   }
-
-  // ==========================================================
-  // AGREGAR / QUITAR FAVORITO
-  // ==========================================================
 
   Future<void> cambiarFavorito() async {
     final usuario = usuarioActual;
@@ -162,10 +126,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
     try {
       if (esFavorito) {
-        // ==============================================
-        // ELIMINAR
-        // ==============================================
-
         await favoritoService.eliminarFavorito(widget.libro);
 
         if (!mounted) return;
@@ -176,10 +136,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
         mostrarMensaje("Libro eliminado de favoritos");
       } else {
-        // ==============================================
-        // AGREGAR
-        // ==============================================
-
         await favoritoService.agregarFavorito(widget.libro);
 
         if (!mounted) return;
@@ -202,10 +158,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
       }
     }
   }
-
-  // ==========================================================
-  // ESTADO DE LECTURA
-  // ==========================================================
 
   Future<void> cargarEstadoLectura() async {
     final usuario = usuarioActual;
@@ -236,10 +188,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
       debugPrint("Error al cargar estado de lectura: $e");
     }
   }
-
-  // ==========================================================
-  // CAMBIAR ESTADO DE LECTURA
-  // ==========================================================
 
   Future<void> cambiarEstadoLectura(String nuevoEstado) async {
     final usuario = usuarioActual;
@@ -291,20 +239,12 @@ class _DetalleLibroState extends State<DetalleLibro> {
     }
   }
 
-  // ==========================================================
-  // CALIFICACIONES
-  // ==========================================================
-
   Future<void> cargarCalificacion() async {
     if (widget.libro.id == null || widget.libro.id!.isEmpty) {
       return;
     }
 
     try {
-      // ==============================================
-      // TODAS LAS CALIFICACIONES
-      // ==============================================
-
       final calificaciones =
           await db
               .collection("libros")
@@ -329,10 +269,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
       if (calificaciones.docs.isNotEmpty) {
         nuevoPromedio = suma / calificaciones.docs.length;
       }
-
-      // ==============================================
-      // CALIFICACIÓN DEL USUARIO
-      // ==============================================
 
       int calificacionUsuario = 0;
 
@@ -374,10 +310,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
     }
   }
 
-  // ==========================================================
-  // GUARDAR CALIFICACIÓN
-  // ==========================================================
-
   Future<void> guardarCalificacion(int estrellas) async {
     final usuario = usuarioActual;
 
@@ -407,6 +339,7 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
       setState(() {
         miCalificacion = estrellas;
+
         yaCalifico = true;
       });
 
@@ -417,10 +350,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
       mostrarMensaje("Error al guardar calificación: $e");
     }
   }
-
-  // ==========================================================
-  // MOSTRAR CALIFICACIÓN
-  // ==========================================================
 
   void mostrarCalificar() {
     showDialog(
@@ -513,10 +442,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
     );
   }
 
-  // ==========================================================
-  // PUBLICAR OPINIÓN
-  // ==========================================================
-
   Future<void> publicarOpinion() async {
     final usuario = usuarioActual;
 
@@ -549,30 +474,29 @@ class _DetalleLibroState extends State<DetalleLibro> {
     });
 
     try {
-      // ==============================================
-      // OPINIÓN DEL LIBRO
-      // ==============================================
+      final referenciaOpinion =
+          db
+              .collection("libros")
+              .doc(widget.libro.id)
+              .collection("opiniones")
+              .doc();
 
-      await db
-          .collection("libros")
-          .doc(widget.libro.id)
-          .collection("opiniones")
-          .add({
-            "usuarioId": usuario.uid,
-            "nombreUsuario": usuario.displayName ?? usuario.email ?? "Usuario",
-            "opinion": texto,
-            "fecha": FieldValue.serverTimestamp(),
-          });
+      final opinionId = referenciaOpinion.id;
 
-      // ==============================================
-      // COPIA EN EL PERFIL DEL USUARIO
-      // ==============================================
+      await referenciaOpinion.set({
+        "usuarioId": usuario.uid,
+        "nombreUsuario": usuario.displayName ?? usuario.email ?? "Usuario",
+        "opinion": texto,
+        "fecha": FieldValue.serverTimestamp(),
+      });
 
       await db
           .collection("usuarios")
           .doc(usuario.uid)
           .collection("opiniones")
-          .add({
+          .doc(opinionId)
+          .set({
+            "opinionId": opinionId,
             "libroId": widget.libro.id,
             "tituloLibro": widget.libro.titulo,
             "opinion": texto,
@@ -597,9 +521,185 @@ class _DetalleLibroState extends State<DetalleLibro> {
     }
   }
 
-  // ==========================================================
-  // MENSAJE
-  // ==========================================================
+  Future<void> editarOpinion(String opinionId, String opinionActual) async {
+    final usuario = usuarioActual;
+
+    if (usuario == null) {
+      mostrarMensaje("Debes iniciar sesión.");
+
+      return;
+    }
+
+    final controller = TextEditingController(text: opinionActual);
+
+    final resultado = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Editar opinión"),
+
+          content: TextField(
+            controller: controller,
+
+            maxLines: 5,
+
+            maxLength: 500,
+
+            decoration: const InputDecoration(
+              hintText: "Escribe tu opinión...",
+              border: OutlineInputBorder(),
+            ),
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+
+              child: const Text("Cancelar"),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 136, 42, 62),
+              ),
+
+              onPressed: () {
+                final texto = controller.text.trim();
+
+                if (texto.isEmpty) {
+                  return;
+                }
+
+                if (texto.length < 5) {
+                  return;
+                }
+
+                Navigator.pop(dialogContext, texto);
+              },
+
+              child: const Text(
+                "Guardar",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    controller.dispose();
+
+    if (resultado == null || resultado.isEmpty) {
+      return;
+    }
+
+    try {
+      await db
+          .collection("libros")
+          .doc(widget.libro.id)
+          .collection("opiniones")
+          .doc(opinionId)
+          .update({
+            "opinion": resultado,
+            "fecha": FieldValue.serverTimestamp(),
+          });
+
+      await db
+          .collection("usuarios")
+          .doc(usuario.uid)
+          .collection("opiniones")
+          .doc(opinionId)
+          .update({
+            "opinion": resultado,
+            "fecha": FieldValue.serverTimestamp(),
+          });
+
+      if (!mounted) return;
+
+      mostrarMensaje("Opinión actualizada correctamente ✏️");
+    } catch (e) {
+      if (!mounted) return;
+
+      mostrarMensaje("Error al editar la opinión: $e");
+    }
+  }
+
+  Future<void> eliminarOpinion(String opinionId) async {
+    final usuario = usuarioActual;
+
+    if (usuario == null) {
+      mostrarMensaje("Debes iniciar sesión.");
+
+      return;
+    }
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Eliminar opinión"),
+
+          content: const Text(
+            "¿Estás seguro de que quieres "
+            "eliminar tu opinión?",
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+
+              child: const Text("Cancelar"),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+
+              child: const Text(
+                "Eliminar",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true) {
+      return;
+    }
+
+    try {
+      await db
+          .collection("libros")
+          .doc(widget.libro.id)
+          .collection("opiniones")
+          .doc(opinionId)
+          .delete();
+
+      await db
+          .collection("usuarios")
+          .doc(usuario.uid)
+          .collection("opiniones")
+          .doc(opinionId)
+          .delete();
+
+      if (!mounted) return;
+
+      mostrarMensaje("Opinión eliminada correctamente 🗑️");
+    } catch (e) {
+      if (!mounted) return;
+
+      mostrarMensaje("Error al eliminar la opinión: $e");
+    }
+  }
 
   void mostrarMensaje(String mensaje) {
     if (!mounted) return;
@@ -608,10 +708,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
       context,
     ).showSnackBar(SnackBar(content: Text(mensaje)));
   }
-
-  // ==========================================================
-  // COLOR ESTADO
-  // ==========================================================
 
   Color colorEstado(String estado) {
     switch (estado) {
@@ -629,10 +725,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
     }
   }
 
-  // ==========================================================
-  // ICONO ESTADO
-  // ==========================================================
-
   IconData iconoEstado(String estado) {
     switch (estado) {
       case "Quiero leer":
@@ -649,20 +741,15 @@ class _DetalleLibroState extends State<DetalleLibro> {
     }
   }
 
-  // ==========================================================
-  // BUILD
-  // ==========================================================
-
   @override
   Widget build(BuildContext context) {
     final libro = widget.libro;
 
+    final usuario = usuarioActual;
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8FA),
 
-      // ========================================================
-      // APP BAR
-      // ========================================================
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
 
@@ -700,9 +787,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
         ],
       ),
 
-      // ========================================================
-      // CONTENIDO
-      // ========================================================
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
 
@@ -710,9 +794,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
           crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
-            // ==================================================
-            // PORTADA
-            // ==================================================
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -745,9 +826,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
             const SizedBox(height: 20),
 
-            // ==================================================
-            // TITULO
-            // ==================================================
             Center(
               child: Text(
                 libro.titulo,
@@ -764,9 +842,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
             const SizedBox(height: 8),
 
-            // ==================================================
-            // AUTOR
-            // ==================================================
             Center(
               child: Text(
                 libro.autor,
@@ -779,9 +854,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
             const SizedBox(height: 8),
 
-            // ==================================================
-            // GENERO
-            // ==================================================
             Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -814,9 +886,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
             const SizedBox(height: 20),
 
-            // ==================================================
-            // CALIFICACION GENERAL
-            // ==================================================
             Container(
               width: double.infinity,
 
@@ -906,9 +975,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
             const SizedBox(height: 20),
 
-            // ==================================================
-            // ESTADO DE LECTURA
-            // ==================================================
             const Text(
               "Mi estado de lectura",
 
@@ -987,9 +1053,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
             const SizedBox(height: 25),
 
-            // ==================================================
-            // RESEÑA
-            // ==================================================
             const Text(
               "Reseña",
 
@@ -1034,9 +1097,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
             const SizedBox(height: 25),
 
-            // ==================================================
-            // OPINIONES
-            // ==================================================
             const Text(
               "Opiniones de lectores",
 
@@ -1049,9 +1109,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
             const SizedBox(height: 10),
 
-            // ==================================================
-            // ESCRIBIR OPINION
-            // ==================================================
             Container(
               padding: const EdgeInsets.all(15),
 
@@ -1135,9 +1192,6 @@ class _DetalleLibroState extends State<DetalleLibro> {
 
             const SizedBox(height: 15),
 
-            // ==================================================
-            // LISTA DE OPINIONES
-            // ==================================================
             StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
               stream:
                   widget.libro.id == null
@@ -1218,13 +1272,20 @@ class _DetalleLibroState extends State<DetalleLibro> {
                   itemCount: opiniones.length,
 
                   itemBuilder: (context, index) {
-                    final datos = opiniones[index].data();
+                    final documento = opiniones[index];
+
+                    final datos = documento.data();
 
                     final nombre = datos["nombreUsuario"] ?? "Usuario";
 
                     final opinion = datos["opinion"] ?? "";
 
                     final fecha = datos["fecha"];
+
+                    final usuarioId = datos["usuarioId"] ?? "";
+
+                    final esMiOpinion =
+                        usuario != null && usuario.uid == usuarioId;
 
                     String fechaTexto = "";
 
@@ -1306,6 +1367,62 @@ class _DetalleLibroState extends State<DetalleLibro> {
                                   ],
                                 ),
                               ),
+
+                              if (esMiOpinion)
+                                PopupMenuButton<String>(
+                                  icon: const Icon(Icons.more_vert),
+
+                                  onSelected: (opcion) {
+                                    if (opcion == "editar") {
+                                      editarOpinion(documento.id, opinion);
+                                    }
+
+                                    if (opcion == "eliminar") {
+                                      eliminarOpinion(documento.id);
+                                    }
+                                  },
+
+                                  itemBuilder: (context) {
+                                    return const [
+                                      PopupMenuItem(
+                                        value: "editar",
+
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.edit, size: 20),
+
+                                            SizedBox(width: 10),
+
+                                            Text("Editar"),
+                                          ],
+                                        ),
+                                      ),
+
+                                      PopupMenuItem(
+                                        value: "eliminar",
+
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.delete_outline,
+                                              size: 20,
+                                              color: Colors.red,
+                                            ),
+
+                                            SizedBox(width: 10),
+
+                                            Text(
+                                              "Eliminar",
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ];
+                                  },
+                                ),
                             ],
                           ),
 
