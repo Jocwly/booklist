@@ -26,7 +26,10 @@ class _generoState extends State<genero> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
 
-        title: Text("Géneros", style: TextStyle(color: Colors.white)),
+        title: Text(
+          "GÉNEROS",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
 
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
       ),

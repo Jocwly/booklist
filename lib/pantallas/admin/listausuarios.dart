@@ -19,7 +19,10 @@ class _listausuariosState extends State<listausuarios> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Lista de Usuarios"),
+        title: const Text(
+          "LISTA DE USUARIOS",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
 
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
       ),

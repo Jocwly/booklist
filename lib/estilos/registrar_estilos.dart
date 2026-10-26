@@ -75,7 +75,7 @@ class RegistrarEstilos {
   static ButtonStyle botonRegistrar = ElevatedButton.styleFrom(
     backgroundColor: colorPrincipal,
 
-    padding: const EdgeInsets.symmetric(horizontal: 113, vertical: 15),
+    padding: const EdgeInsets.symmetric(vertical: 15),
 
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
   );

@@ -145,6 +145,16 @@ class _LibrosAdminState extends State<LibrosAdmin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "GESTIÓN DE LIBROS",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+
+        backgroundColor: const Color.fromARGB(255, 136, 42, 62),
+
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: StreamBuilder<List<Libro>>(
         stream: libroService.obtenerLibros(),
 

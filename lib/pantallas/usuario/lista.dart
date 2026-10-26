@@ -91,11 +91,7 @@ class _listaState extends State<lista> {
         title: const Text(
           "MI LISTA DE DESEOS",
 
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontFamily: "Cheer",
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
 
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
@@ -171,7 +167,7 @@ class _listaState extends State<lista> {
                   const SizedBox(height: 5),
 
                   Text(
-                    "Agrega libros a tu lista de deseos ❤️",
+                    "Agrega libros a tu lista de deseos",
 
                     style: TextStyle(color: Colors.grey.shade600),
                   ),
