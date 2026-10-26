@@ -57,15 +57,18 @@ class _paginaState extends State<pagina> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
-                // PORTADA
                 if (libro.portada.isNotEmpty)
                   Center(
                     child: Image.network(
                       libro.portada,
+
                       width: 130,
                       height: 180,
+
                       fit: BoxFit.cover,
+
                       errorBuilder: (context, error, stackTrace) {
                         return const Icon(Icons.book, size: 100);
                       },
@@ -74,9 +77,9 @@ class _paginaState extends State<pagina> {
 
                 const SizedBox(height: 15),
 
-                // RESEÑA
                 const Text(
                   "Reseña:",
+
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
 
@@ -92,10 +95,43 @@ class _paginaState extends State<pagina> {
           ),
 
           actions: [
+            IconButton(
+              tooltip: "Agregar a favoritos",
+
+              icon: const Icon(
+                Icons.favorite_border,
+                color: Colors.red,
+                size: 28,
+              ),
+
+              onPressed: () {
+                Navigator.pop(context);
+
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      "Inicia sesión para agregar libros a favoritos.",
+                    ),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  if (!mounted) return;
+
+                  Navigator.push(
+                    this.context,
+                    MaterialPageRoute(builder: (context) => const login()),
+                  );
+                });
+              },
+            ),
+
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
+
               child: const Text("Cerrar"),
             ),
           ],
@@ -107,6 +143,7 @@ class _paginaState extends State<pagina> {
   @override
   void dispose() {
     buscarController.dispose();
+
     super.dispose();
   }
 
@@ -133,6 +170,7 @@ class _paginaState extends State<pagina> {
 
               title: const Text(
                 "Iniciar sesión",
+
                 style: TextStyle(color: Colors.black),
               ),
 
@@ -151,6 +189,7 @@ class _paginaState extends State<pagina> {
 
               title: const Text(
                 "Crea una cuenta",
+
                 style: TextStyle(color: Colors.black),
               ),
 
@@ -170,6 +209,7 @@ class _paginaState extends State<pagina> {
           children: [
             const Text(
               "BOOKLIST",
+
               style: TextStyle(fontFamily: "Cheer", color: Colors.white),
             ),
 
@@ -234,6 +274,7 @@ class _paginaState extends State<pagina> {
                 child: Text(
                   "Ocurrió un error al cargar los libros:\n\n"
                   "${snapshot.error}",
+
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -244,6 +285,7 @@ class _paginaState extends State<pagina> {
             return const Center(
               child: Text(
                 "No hay libros registrados",
+
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             );
@@ -268,6 +310,7 @@ class _paginaState extends State<pagina> {
             return const Center(
               child: Text(
                 "No se encontraron libros",
+
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             );
@@ -301,9 +344,6 @@ class _paginaState extends State<pagina> {
 
                   child: Column(
                     children: [
-                      // ---------------------------------------
-                      // PORTADA
-                      // ---------------------------------------
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
 
@@ -321,6 +361,7 @@ class _paginaState extends State<pagina> {
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
                                       width: 100,
+
                                       height: 120,
 
                                       decoration: BoxDecoration(
@@ -339,6 +380,7 @@ class _paginaState extends State<pagina> {
                                 )
                                 : Container(
                                   width: 100,
+
                                   height: 120,
 
                                   decoration: BoxDecoration(

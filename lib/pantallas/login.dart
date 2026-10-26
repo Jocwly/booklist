@@ -247,33 +247,35 @@ class _loginState extends State<login> {
 
                     const SizedBox(height: 20),
 
-                    ElevatedButton(
-                      onPressed: () async {
-                        FocusScope.of(context).unfocus();
+                    SizedBox(
+                      width: RegistrarEstilos.anchoCampo,
+                      height: 55,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          FocusScope.of(context).unfocus();
 
-                        if (_formKey.currentState!.validate()) {
-                          final correcto = await verificarLogin(
-                            nombre.text,
-                            contra.text,
-                          );
+                          if (_formKey.currentState!.validate()) {
+                            final correcto = await verificarLogin(
+                              nombre.text,
+                              contra.text,
+                            );
 
-                          if (!correcto && mounted) {
-                            _ShowDatosIncorrectos(context);
+                            if (!correcto && mounted) {
+                              _ShowDatosIncorrectos(context);
+                            }
                           }
-                        }
-                      },
+                        },
 
-                      style: RegistrarEstilos.botonRegistrar,
+                        style: RegistrarEstilos.botonRegistrar,
 
-                      child: const Text(
-                        "Iniciar Sesión",
-
-                        style: RegistrarEstilos.textoBoton,
+                        child: const Text(
+                          "Iniciar Sesión",
+                          style: RegistrarEstilos.textoBoton,
+                        ),
                       ),
                     ),
 
                     const SizedBox(height: 15),
-
                     SizedBox(
                       width: RegistrarEstilos.anchoCampo,
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:booklistt/modelo/libro.dart';
 import 'package:booklistt/servicios/libro_service.dart';
-import 'package:booklistt/pantallas/admin/detalle_libro.dart';
+import 'package:booklistt/pantallas/usuario/detalle_libro.dart';
 
 class inicio extends StatefulWidget {
   const inicio({super.key});
@@ -56,6 +56,8 @@ class _inicioState extends State<inicio> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
 
         title: Row(
@@ -181,99 +183,183 @@ class _inicioState extends State<inicio> {
           }
 
           if (librosFiltrados.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+            return Column(
+              children: [
+                _mensajeBienvenida(),
 
-                children: [
-                  Icon(Icons.search_off, size: 60, color: Colors.grey),
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
 
-                  SizedBox(height: 10),
+                      children: [
+                        const Icon(
+                          Icons.search_off,
+                          size: 60,
+                          color: Colors.grey,
+                        ),
 
-                  Text(
-                    "No se encontraron libros",
+                        const SizedBox(height: 10),
 
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        const Text(
+                          "No se encontraron libros",
+
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 5),
+
+                        const Text(
+                          "Intenta buscar otro título, autor o género.",
+                        ),
+                      ],
+                    ),
                   ),
-
-                  SizedBox(height: 5),
-
-                  Text("Intenta buscar otro título, autor o género."),
-                ],
-              ),
+                ),
+              ],
             );
           }
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(10),
+          return Column(
+            children: [
+              _mensajeBienvenida(),
 
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(10),
 
-              childAspectRatio: 0.65,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
 
-              crossAxisSpacing: 8,
+                    childAspectRatio: 0.65,
 
-              mainAxisSpacing: 8,
-            ),
+                    crossAxisSpacing: 8,
 
-            itemCount: librosFiltrados.length,
+                    mainAxisSpacing: 8,
+                  ),
 
-            itemBuilder: (context, index) {
-              final libro = librosFiltrados[index];
+                  itemCount: librosFiltrados.length,
 
-              return GestureDetector(
-                onTap: () {
-                  abrirDetalle(libro);
-                },
+                  itemBuilder: (context, index) {
+                    final libro = librosFiltrados[index];
 
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
+                    return GestureDetector(
+                      onTap: () {
+                        abrirDetalle(libro);
+                      },
 
-                        child: Image.network(
-                          libro.portada,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
 
-                          width: double.infinity,
+                              child: Image.network(
+                                libro.portada,
 
-                          fit: BoxFit.cover,
+                                width: double.infinity,
 
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey.shade200,
+                                fit: BoxFit.cover,
 
-                              child: const Icon(
-                                Icons.book,
-                                size: 60,
-                                color: Colors.grey,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.grey.shade200,
+
+                                    child: const Icon(
+                                      Icons.book,
+                                      size: 60,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Text(
+                            libro.titulo,
+
+                            textAlign: TextAlign.center,
+
+                            maxLines: 2,
+
+                            overflow: TextOverflow.ellipsis,
+
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    Text(
-                      libro.titulo,
-
-                      textAlign: TextAlign.center,
-
-                      maxLines: 2,
-
-                      overflow: TextOverflow.ellipsis,
-
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _mensajeBienvenida() {
+    return Container(
+      width: double.infinity,
+
+      margin: const EdgeInsets.fromLTRB(10, 10, 10, 5),
+
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 250, 235, 239),
+
+        borderRadius: BorderRadius.circular(12),
+
+        border: Border.all(
+          color: const Color.fromARGB(255, 136, 42, 62).withOpacity(0.15),
+        ),
+      ),
+
+      child: Row(
+        children: [
+          const Icon(
+            Icons.bookmark_border,
+            color: Color.fromARGB(255, 136, 42, 62),
+            size: 30,
+          ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                const Text(
+                  "¡Bienvenido a BookList!",
+
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+
+                    color: Color.fromARGB(255, 136, 42, 62),
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  "Descubre, organiza y comparte tu pasión por los libros.",
+
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

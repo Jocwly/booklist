@@ -267,7 +267,10 @@ class _AgregarLibroState extends State<AgregarLibro> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Agregar libro"),
+        title: const Text(
+          "AGREGAR LIBROS",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
 
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
 

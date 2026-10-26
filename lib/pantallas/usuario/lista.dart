@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:booklistt/modelo/libro.dart';
 import 'package:booklistt/servicios/favorito_service.dart';
-import 'package:booklistt/pantallas/admin/detalle_libro.dart';
+import 'package:booklistt/pantallas/usuario/detalle_libro.dart';
 
 class lista extends StatefulWidget {
   const lista({super.key});
@@ -87,14 +87,11 @@ class _listaState extends State<lista> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           "MI LISTA DE DESEOS",
 
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontFamily: "Cheer",
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
 
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
@@ -170,7 +167,7 @@ class _listaState extends State<lista> {
                   const SizedBox(height: 5),
 
                   Text(
-                    "Agrega libros a tu lista de deseos ❤️",
+                    "Agrega libros a tu lista de deseos",
 
                     style: TextStyle(color: Colors.grey.shade600),
                   ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:booklistt/pantallas/libros_genero.dart';
+import 'package:booklistt/pantallas/usuario/libros_genero.dart';
 
 class genero extends StatefulWidget {
   const genero({super.key});
@@ -24,36 +24,11 @@ class _generoState extends State<genero> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Container(
-          height: 50,
+        automaticallyImplyLeading: false,
 
-          padding: const EdgeInsets.all(10),
-
-          child: Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  "Buscar un libro...",
-
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-
-              const SizedBox(width: 10),
-
-              const CircleAvatar(
-                backgroundColor: Color.fromARGB(255, 147, 60, 78),
-
-                child: Icon(Icons.search, color: Colors.white),
-              ),
-            ],
-          ),
-
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-
-            color: const Color.fromARGB(255, 147, 60, 78),
-          ),
+        title: Text(
+          "GÉNEROS",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
 
         backgroundColor: const Color.fromARGB(255, 136, 42, 62),
@@ -200,7 +175,7 @@ class _generoState extends State<genero> {
                           children: [
                             CircleAvatar(
                               backgroundImage: const NetworkImage(
-                                "https://th.bing.com/th/id/OIP.RyjtBrmxPWhzSSjHOXh9HQHaHa?rs=1&pid=ImgDetMain",
+                                "https://static.vecteezy.com/system/resources/thumbnails/046/595/707/small_2x/magic-hat-logo-or-modern-line-icon-line-art-and-icon-design-with-bold-outline-black-and-white-pixel-perfect-minimalistic-symbol-isolate-white-background-creative-logotype-vector.jpg",
                               ),
 
                               radius: 50,
@@ -355,7 +330,7 @@ class _generoState extends State<genero> {
                           children: [
                             CircleAvatar(
                               backgroundImage: const NetworkImage(
-                                "https://media.istockphoto.com/vectors/masks-symbol-vector-id1175496220?k=20&m=1175496220&s=612x612&w=0&h=6YHLFqoSHrpFWu67MycpmAg0ZLBPlP1VzrVYtewS5iQ=",
+                                "https://tse3.mm.bing.net/th/id/OIP.hRgK8uRzS8j_seyAH84kowHaHa?r=0&w=2000&h=2000&rs=1&pid=ImgDetMain&o=7&rm=3",
                               ),
 
                               radius: 50,

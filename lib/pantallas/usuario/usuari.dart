@@ -1,6 +1,6 @@
-import 'package:booklistt/pantallas/genero.dart';
+import 'package:booklistt/pantallas/usuario/genero.dart';
 import 'package:booklistt/pantallas/usuario/inicio.dart';
-import 'package:booklistt/pantallas/lista.dart';
+import 'package:booklistt/pantallas/usuario/lista.dart';
 import 'package:booklistt/pantallas/login.dart';
 import 'package:booklistt/pantallas/usuario/mis_lecturas.dart';
 import 'package:booklistt/pantallas/pagina.dart';
@@ -17,10 +17,6 @@ class UsuariAp extends StatefulWidget {
 class _UsuariApState extends State<UsuariAp> {
   int valorOpciones = 0;
 
-  // ==========================================================
-  // OBTENER LA PANTALLA ACTUAL
-  // ==========================================================
-
   Widget obtenerPagina() {
     switch (valorOpciones) {
       case 0:
@@ -36,10 +32,6 @@ class _UsuariApState extends State<UsuariAp> {
         return const inicio();
     }
   }
-
-  // ==========================================================
-  // CERRAR SESIÓN
-  // ==========================================================
 
   void cerrarSesion() {
     showDialog(
@@ -87,16 +79,9 @@ class _UsuariApState extends State<UsuariAp> {
     );
   }
 
-  // ==========================================================
-  // BUILD
-  // ==========================================================
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ========================================================
-      // APP BAR
-      // ========================================================
       appBar: AppBar(
         title: const Text(
           "BookList",
@@ -108,14 +93,8 @@ class _UsuariApState extends State<UsuariAp> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
 
-      // ========================================================
-      // PANTALLA ACTUAL
-      // ========================================================
       body: obtenerPagina(),
 
-      // ========================================================
-      // BARRA DE NAVEGACIÓN
-      // ========================================================
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: valorOpciones,
 
@@ -148,17 +127,11 @@ class _UsuariApState extends State<UsuariAp> {
         },
       ),
 
-      // ========================================================
-      // MENÚ LATERAL
-      // ========================================================
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
 
           children: [
-            // ==================================================
-            // ENCABEZADO
-            // ==================================================
             DrawerHeader(
               decoration: const BoxDecoration(
                 color: Color.fromARGB(255, 136, 42, 62),
@@ -191,9 +164,6 @@ class _UsuariApState extends State<UsuariAp> {
               ),
             ),
 
-            // ==================================================
-            // INICIO
-            // ==================================================
             ListTile(
               leading: const Icon(
                 Icons.home,
@@ -211,9 +181,6 @@ class _UsuariApState extends State<UsuariAp> {
               },
             ),
 
-            // ==================================================
-            // FAVORITOS
-            // ==================================================
             ListTile(
               leading: const Icon(
                 Icons.person,
@@ -231,10 +198,6 @@ class _UsuariApState extends State<UsuariAp> {
                 );
               },
             ),
-
-            // ==================================================
-            // GENEROS
-            // ==================================================
             ListTile(
               leading: const Icon(
                 Icons.menu_book,
@@ -254,13 +217,6 @@ class _UsuariApState extends State<UsuariAp> {
             ),
             const Divider(),
 
-            // ==================================================
-            // PERFIL
-            // ==================================================
-
-            // ==================================================
-            // CERRAR SESIÓN
-            // ==================================================
             ListTile(
               leading: const Icon(Icons.exit_to_app, color: Colors.red),
 
